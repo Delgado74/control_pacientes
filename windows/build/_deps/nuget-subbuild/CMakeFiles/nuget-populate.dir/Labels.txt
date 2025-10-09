@@ -1,0 +1,15 @@
+# Target labels
+ nuget-populate
+# Source files and their labels
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate-complete.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-build.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-configure.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-copyfile.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-download.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-install.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-mkdir.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-patch.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-test.rule
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-update.rule

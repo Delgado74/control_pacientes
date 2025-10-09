@@ -1,0 +1,49 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate-complete.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-build.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-configure.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-copyfile.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-download.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-install.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-patch.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-test.rule"
+		},
+		{
+			"file" : "/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nuget-populate"
+		],
+		"name" : "nuget-populate"
+	}
+}

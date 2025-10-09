@@ -1,0 +1,3 @@
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate.dir
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/edit_cache.dir
+/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/rebuild_cache.dir

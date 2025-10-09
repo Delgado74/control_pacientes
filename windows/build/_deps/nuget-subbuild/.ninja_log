@@ -1,0 +1,24 @@
+# ninja log v5
+0	54	1759990666799843940	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-mkdir	6e61a946a8b19ed2
+0	54	1759990666799843940	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-mkdir	6e61a946a8b19ed2
+54	3808	1759990670552886371	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-download	1410d347ad9c0bd2
+54	3808	1759990670552886371	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-download	1410d347ad9c0bd2
+3808	3835	1759990670579886676	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-update	8159959f9c100347
+3808	3835	1759990670579886676	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-update	8159959f9c100347
+3835	3858	1759990670602886936	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-patch	82faa6235b96dde8
+3835	3858	1759990670602886936	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-patch	82faa6235b96dde8
+3858	3895	1759990670639887354	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-copyfile	6788ade6ff12e2
+3858	3895	1759990670639887354	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-src/nuget.exe	6788ade6ff12e2
+3858	3895	1759990670639887354	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-copyfile	6788ade6ff12e2
+3895	3918	1759990670662887614	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-configure	489e3adc1ec77d6a
+3895	3918	1759990670662887614	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-configure	489e3adc1ec77d6a
+3918	3936	1759990670681887829	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-build	7358061b3ba2237c
+3918	3936	1759990670681887829	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-build	7358061b3ba2237c
+3936	3955	1759990670699888033	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-install	78bf185a10ccf00b
+3936	3955	1759990670699888033	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-install	78bf185a10ccf00b
+3955	3972	1759990670716888225	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-test	16cd6ca11233a2b3
+3955	3972	1759990670716888225	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-test	16cd6ca11233a2b3
+3972	3995	1759990670740888496	CMakeFiles/nuget-populate-complete	51eac594cbfa89f1
+3972	3995	1759990670740888496	nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-done	51eac594cbfa89f1
+3972	3995	1759990670740888496	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/CMakeFiles/nuget-populate-complete	51eac594cbfa89f1
+3972	3995	1759990670740888496	/home/islabtc/AndroidStudioProjects/control_pacientes/windows/build/_deps/nuget-subbuild/nuget-populate-prefix/src/nuget-populate-stamp/nuget-populate-done	51eac594cbfa89f1
