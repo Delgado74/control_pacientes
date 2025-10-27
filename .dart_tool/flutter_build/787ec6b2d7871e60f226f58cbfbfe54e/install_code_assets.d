@@ -1,0 +1,1 @@
+ /home/islabtc/AndroidStudioProjects/control_pacientes/.dart_tool/flutter_build/787ec6b2d7871e60f226f58cbfbfe54e/native_assets.json: 

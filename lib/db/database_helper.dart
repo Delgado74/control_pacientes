@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   // Singleton
@@ -24,7 +26,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3, // Incrementa la versión si modificas la tabla
+      version: 3,
       onCreate: _onCreate,
     );
   }
@@ -130,7 +132,6 @@ class DatabaseHelper {
     ''');
   }
 
-
   // ================= PACIENTES =================
   Future<int> insertarPaciente(Map<String, dynamic> paciente) async {
     final db = await database;
@@ -216,7 +217,6 @@ class DatabaseHelper {
     return conteo;
   }
 
-  // Conteo general por campo
   Future<Map<String, int>> contarPorCampo(String campo) async {
     final db = await database;
 
@@ -228,22 +228,6 @@ class DatabaseHelper {
       ''');
       int total = result.first['total'] as int? ?? 0;
       return {'SI': total};
-    }
-
-    if (campo == 'factor_riesgo' || campo == 'enfermedades' || campo == 'discapacidades') {
-      final result = await db.rawQuery('''
-        SELECT $campo as valor, COUNT(*) as total
-        FROM pacientes
-        GROUP BY $campo
-      ''');
-
-      Map<String, int> conteo = {};
-      for (var row in result) {
-        final valor = row['valor']?.toString() ?? 'N/A';
-        final total = row['total'] as int;
-        conteo[valor] = total;
-      }
-      return conteo;
     }
 
     final result = await db.rawQuery('''
@@ -262,7 +246,6 @@ class DatabaseHelper {
     return conteo;
   }
 
-  // Conteo por flags (riesgo, enfermedad, discapacidad)
   Future<Map<String, int>> contarPorFlags(List<String> campos) async {
     final db = await database;
     Map<String, int> conteo = {'TOTAL': 0};
@@ -348,12 +331,47 @@ class DatabaseHelper {
     return await db.delete('localizaciones', where: 'id = ?', whereArgs: [id]);
   }
 
-  // ==================== NUEVO ====================
+  // ================= EXPORT / IMPORT =================
   Future<String> get dbPath async {
     final dbDirectory = await getDatabasesPath();
     return join(dbDirectory, _dbName);
   }
 
+  Future<File?> exportDatabase() async {
+    try {
+      final path = await dbPath;
+      final file = File(path);
+
+      if (!await file.exists()) return null;
+
+      final exportDir = Platform.isAndroid || Platform.isIOS
+          ? await getApplicationDocumentsDirectory()
+          : Directory.current;
+
+      final exportPath = join(exportDir.path, 'exported_$_dbName');
+      final exportedFile = await file.copy(exportPath);
+
+      return exportedFile;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> importDatabase(File file) async {
+    try {
+      if (!await file.exists()) return false;
+
+      final path = await dbPath;
+      await file.copy(path);
+      _database = await _initDb();
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ================= CERRAR DB =================
   Future<void> closeDB() async {
     if (_database != null) {
       await _database!.close();

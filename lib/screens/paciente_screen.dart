@@ -62,7 +62,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
   final List<String> sexos = ["Masculino", "Femenino"];
   final List<String> coloresPiel = ["Blanca", "Negra", "Mestiza"];
   final List<String> escolaridades = ["SE", "PST", "PT", "ST", "TM/PU", "U"];
-  final List<String> ocupaciones = ["Estudia", "Trabaja", "Ama de casa", "Jubilado", "Recluso", "Desocupado"];
+  final List<String> ocupaciones = ["C Infantil", "NAHO", "Estudia", "Trabaja", "Ama de casa", "SMG", "Jubilado", "Recluso", "Desocupado"];
   final List<String> siNo = ["Sí","No"];
   final List<String> gruposDispensariales = ["I", "II", "III", "IV"];
   final List<String> controles = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio','Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -895,7 +895,7 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(labelText: "Ocupación", border: OutlineInputBorder()),
               initialValue: ocupacion,
-              items: ['Estudia','Trabaja','Ama de casa','Jubilado','Recluso','Desocupado'].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
+              items: ['C INFANTIL','NAHO','Estudia','Trabaja','Ama de casa','SMG','Jubilado','Recluso','Desocupado'].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
               onChanged: (v) => setState(() => ocupacion = v),
             ),
             const SizedBox(height: 8),
