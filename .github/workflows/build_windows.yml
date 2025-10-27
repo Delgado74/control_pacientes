@@ -31,7 +31,7 @@ jobs:
         run: flutter build windows --release  # Compila en modo release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: build/windows/runner/Release/  # Ruta donde se genera el .exe
