@@ -1,0 +1,37 @@
+name: Build Flutter Windows
+
+on:
+  push:
+    branches: [ windows ]  # Cambia a tu rama principal (main, master, etc.)
+  pull_request:
+    branches: [ windows ]
+
+env:
+  FLUTTER_VERSION: "3.13.0"  # Versión de Flutter (ajusta según necesites)
+
+jobs:
+  build-windows:
+    name: Build Windows Executable
+    runs-on: windows-latest  # Usa un runner de Windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable  # Canal de Flutter (stable, beta, etc.)
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release  # Compila en modo release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: build/windows/runner/Release/  # Ruta donde se genera el .exe
