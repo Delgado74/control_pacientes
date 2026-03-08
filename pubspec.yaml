@@ -1,4 +1,4 @@
-name: control_pacientes
+name: medical_family_care
 description: Aplicación Flutter para control de pacientes en Medicina Familiar
 version: 1.0.0+1
 
@@ -19,7 +19,7 @@ dependencies:
   excel: ^2.0.0
 
   # File picker para importar Excel
-  file_picker: ^10.3.3
+  file_picker: ^8.0.0
 
   # Exportación a PDF y compartir
   pdf: ^3.11.3
@@ -47,7 +47,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.0
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/icono.png"
