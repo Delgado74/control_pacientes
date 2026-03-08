@@ -7,6 +7,7 @@
 **/android/local.properties
 **/android/key.properties
 **/android/**/GeneratedPluginRegistrant.java
+**/android/app/build/
 **/ios/Flutter/.last_build_id
 **/ios/Flutter/Flutter.podspec
 **/ios/Flutter/FlutterPluginRegistrant/Classes/GeneratedPluginRegistrant.java
@@ -17,6 +18,14 @@
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
+# Dart tool
+.dart_tool/
+.packages
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
 # IDEs
 .idea/
 .vscode/
@@ -25,4 +34,5 @@
 
 # Build
 build/
-pubspec.lock
+android/app/build/
+android_old/
