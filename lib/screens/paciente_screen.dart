@@ -852,6 +852,7 @@ class EditarPacienteScreen extends StatefulWidget {
 
 class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
   final db = DatabaseHelper.instance;
+  final _formKey = GlobalKey<FormState>();
 
   late TextEditingController cdrController;
   late TextEditingController numeroCasaController;
@@ -994,6 +995,7 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
   }
 
   Future<void> _guardarEdicion() async {
+    if (!_formKey.currentState!.validate()) return;
     final id = widget.paciente['id'];
     Map<String, dynamic> pacienteMap = {
       'cdr': cdrController.text.trim(),
@@ -1051,235 +1053,254 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
       appBar: AppBar(title: const Text('Editar Paciente')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: cdrController,
-              decoration: const InputDecoration(
-                labelText: "CDR o zona",
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextField(
+                controller: cdrController,
+                decoration: const InputDecoration(
+                  labelText: "CDR o zona",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: numeroCasaController,
-              decoration: const InputDecoration(
-                labelText: "Número de casa",
-                border: OutlineInputBorder(),
+              const SizedBox(height: 8),
+              TextField(
+                controller: numeroCasaController,
+                decoration: const InputDecoration(
+                  labelText: "Número de casa",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-                controller: nombreController,
+              const SizedBox(height: 8),
+              TextField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(
+                      labelText: "Nombre", border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(
+                  controller: carnetIdentidadController,
+                  decoration: const InputDecoration(
+                      labelText: "Carnet de identidad",
+                      border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(
+                controller: fechaNacController,
                 decoration: const InputDecoration(
-                    labelText: "Nombre", border: OutlineInputBorder())),
-            const SizedBox(height: 8),
-            TextField(
-                controller: carnetIdentidadController,
+                    labelText: "Fecha de nacimiento (dd-MM-yyyy)",
+                    border: OutlineInputBorder()),
+                onChanged: (v) {
+                  try {
+                    DateTime fecha = DateFormat('dd-MM-yyyy').parse(v);
+                    DateTime hoy = DateTime.now();
+                    int edad = hoy.year - fecha.year;
+                    if (hoy.month < fecha.month ||
+                        (hoy.month == fecha.month && hoy.day < fecha.day))
+                      edad--;
+                    edadController.text = edad.toString();
+                  } catch (_) {}
+                },
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                  controller: edadController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      labelText: "Edad", border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
-                    labelText: "Carnet de identidad",
-                    border: OutlineInputBorder())),
-            const SizedBox(height: 8),
-            TextField(
-              controller: fechaNacController,
-              decoration: const InputDecoration(
-                  labelText: "Fecha de nacimiento (dd-MM-yyyy)",
-                  border: OutlineInputBorder()),
-              onChanged: (v) {
-                try {
-                  DateTime fecha = DateFormat('dd-MM-yyyy').parse(v);
-                  DateTime hoy = DateTime.now();
-                  int edad = hoy.year - fecha.year;
-                  if (hoy.month < fecha.month ||
-                      (hoy.month == fecha.month && hoy.day < fecha.day)) edad--;
-                  edadController.text = edad.toString();
-                } catch (_) {}
-              },
-            ),
-            const SizedBox(height: 8),
-            TextField(
-                controller: edadController,
-                keyboardType: TextInputType.number,
+                    labelText: "Sexo", border: OutlineInputBorder()),
+                initialValue: sexo,
+                items: ['Masculino', 'Femenino']
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
+                onChanged: (v) => setState(() {
+                  sexo = v;
+                  if (sexo != "Femenino") {
+                    embarazada = null;
+                  }
+                }),
+                validator: (val) => val == null ? "Seleccione un sexo" : null,
+              ),
+              const SizedBox(height: 8),
+              if (sexo == "Femenino")
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                      labelText: "Embarazada", border: OutlineInputBorder()),
+                  initialValue: embarazada,
+                  items: ['Sí', 'No']
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .toList(),
+                  onChanged: (v) => setState(() => embarazada = v),
+                ),
+              if (sexo == "Femenino") const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
-                    labelText: "Edad", border: OutlineInputBorder())),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Sexo", border: OutlineInputBorder()),
-              initialValue: sexo,
-              items: ['Masculino', 'Femenino']
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (v) => setState(() => sexo = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Embarazada", border: OutlineInputBorder()),
-              initialValue: embarazada,
-              items: ['Sí', 'No']
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (v) => setState(() => embarazada = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Color de piel", border: OutlineInputBorder()),
-              initialValue: colorPiel,
-              items: ['Blanca', 'Negra', 'Mestiza']
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (v) => setState(() => colorPiel = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Escolaridad", border: OutlineInputBorder()),
-              initialValue: escolaridad,
-              items: ['SE', 'PST', 'PT', 'ST', 'TM/PU', 'U']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (v) => setState(() => escolaridad = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Ocupación", border: OutlineInputBorder()),
-              initialValue: ocupacion,
-              items: [
-                'C INFANTIL',
-                'NAHO',
-                'Estudia',
-                'Trabaja',
-                'Ama de casa',
-                'SMG',
-                'Jubilado',
-                'Recluso',
-                'Desocupado'
-              ].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
-              onChanged: (v) => setState(() => ocupacion = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Grupo Dispensarial",
-                  border: OutlineInputBorder()),
-              initialValue: grupoDisp,
-              items: ['I', 'II', 'III', 'IV']
-                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                  .toList(),
-              onChanged: (v) => setState(() => grupoDisp = v),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Control", border: OutlineInputBorder()),
-              initialValue: control,
-              items: [
-                'Enero',
-                'Febrero',
-                'Marzo',
-                'Abril',
-                'Mayo',
-                'Junio',
-                'Julio',
-                'Agosto',
-                'Septiembre',
-                'Octubre',
-                'Noviembre',
-                'Diciembre'
-              ].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
-              onChanged: (v) => setState(() => control = v),
-            ),
-            const SizedBox(height: 8),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Factores de riesgo",
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            Column(
-              children: factoresLocal.keys
-                  .map((k) => CheckboxListTile(
-                        title: Text(k),
-                        value: factoresLocal[k],
-                        onChanged: (val) =>
-                            setState(() => factoresLocal[k] = val ?? false),
-                      ))
-                  .toList(),
-            ),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Riesgo Preconcepcional",
-                  border: OutlineInputBorder()),
-              initialValue: riesgoPreconcepcional,
-              items: [
-                'Ninguno',
-                'Biologico',
-                'Psicologico',
-                'Ambiental',
-                'Social',
-                'Masculino'
-              ].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
-              onChanged: (v) => setState(() => riesgoPreconcepcional = v),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                  labelText: "Control de RPC", border: OutlineInputBorder()),
-              initialValue: controlRpc,
-              items: [
-                'Ninguno',
-                'Tabletas',
-                'Inyecciones',
-                'Implantes',
-                'DIU',
-                'Condon'
-              ].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
-              onChanged: (v) => setState(() => controlRpc = v),
-            ),
-            const SizedBox(height: 8),
-            const SizedBox(height: 8),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Enfermedades (indique clasificación si aplica)",
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            Column(
-              children: listaEnfermedades
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: TextField(
-                            controller: enfermedadesLocal[e],
-                            decoration: InputDecoration(
-                                labelText: e,
-                                border: const OutlineInputBorder())),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 8),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Discapacidades (indique causa)",
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            Column(
-              children: listaDiscapacidades
-                  .map((d) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: TextField(
-                            controller: discapacidadesLocal[d],
-                            decoration: InputDecoration(
-                                labelText: d,
-                                border: const OutlineInputBorder())),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 12),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: _guardarEdicion,
-              icon: const Icon(Icons.save),
-              label: const Text("Guardar cambios"),
-            ),
-          ],
+                    labelText: "Color de piel", border: OutlineInputBorder()),
+                initialValue: colorPiel,
+                items: ['Blanca', 'Negra', 'Mestiza']
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) => setState(() => colorPiel = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Escolaridad", border: OutlineInputBorder()),
+                initialValue: escolaridad,
+                items: ['SE', 'PST', 'PT', 'ST', 'TM/PU', 'U']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (v) => setState(() => escolaridad = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Ocupación", border: OutlineInputBorder()),
+                initialValue: ocupacion,
+                items: [
+                  'C Infantil',
+                  'NAHO',
+                  'Estudia',
+                  'Trabaja',
+                  'Ama de casa',
+                  'SMG',
+                  'Jubilado',
+                  'Recluso',
+                  'Desocupado'
+                ]
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (v) => setState(() => ocupacion = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Grupo Dispensarial",
+                    border: OutlineInputBorder()),
+                initialValue: grupoDisp,
+                items: ['I', 'II', 'III', 'IV']
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                    .toList(),
+                onChanged: (v) => setState(() => grupoDisp = v),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Control", border: OutlineInputBorder()),
+                initialValue: control,
+                items: [
+                  'Enero',
+                  'Febrero',
+                  'Marzo',
+                  'Abril',
+                  'Mayo',
+                  'Junio',
+                  'Julio',
+                  'Agosto',
+                  'Septiembre',
+                  'Octubre',
+                  'Noviembre',
+                  'Diciembre'
+                ]
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (v) => setState(() => control = v),
+              ),
+              const SizedBox(height: 8),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Factores de riesgo",
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Column(
+                children: factoresLocal.keys
+                    .map((k) => CheckboxListTile(
+                          title: Text(k),
+                          value: factoresLocal[k],
+                          onChanged: (val) =>
+                              setState(() => factoresLocal[k] = val ?? false),
+                        ))
+                    .toList(),
+              ),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Riesgo Preconcepcional",
+                    border: OutlineInputBorder()),
+                initialValue: riesgoPreconcepcional,
+                items: [
+                  'Ninguno',
+                  'Biologico',
+                  'Psicologico',
+                  'Ambiental',
+                  'Social',
+                  'Masculino'
+                ]
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (v) => setState(() => riesgoPreconcepcional = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    labelText: "Control de RPC", border: OutlineInputBorder()),
+                initialValue: controlRpc,
+                items: [
+                  'Ninguno',
+                  'Tabletas',
+                  'Inyecciones',
+                  'Implantes',
+                  'DIU',
+                  'Condon'
+                ]
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (v) => setState(() => controlRpc = v),
+              ),
+              const SizedBox(height: 8),
+              const SizedBox(height: 8),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Enfermedades (indique clasificación si aplica)",
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Column(
+                children: listaEnfermedades
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                          child: TextField(
+                              controller: enfermedadesLocal[e],
+                              decoration: InputDecoration(
+                                  labelText: e,
+                                  border: const OutlineInputBorder())),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 8),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Discapacidades (indique causa)",
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Column(
+                children: listaDiscapacidades
+                    .map((d) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                          child: TextField(
+                              controller: discapacidadesLocal[d],
+                              decoration: InputDecoration(
+                                  labelText: d,
+                                  border: const OutlineInputBorder())),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 12),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: _guardarEdicion,
+                icon: const Icon(Icons.save),
+                label: const Text("Guardar cambios"),
+              ),
+            ],
+          ),
         ),
       ),
     );

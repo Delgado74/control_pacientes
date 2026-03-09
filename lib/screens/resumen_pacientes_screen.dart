@@ -112,8 +112,11 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
   Future<void> _exportarPDF() async {
     final pdf = pw.Document();
 
-    pw.Widget buildSection(String titulo, Map<String, int> datos) {
-      final datosFiltrados = Map<String, int>.from(datos)..remove('TOTAL');
+    pw.Widget buildSection(String titulo, Map<String, int> datos,
+        {bool ocultarTotal = false}) {
+      final datosFiltrados = ocultarTotal
+          ? (Map<String, int>.from(datos)..remove('TOTAL'))
+          : datos;
       return pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -200,12 +203,14 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
           buildSection('Escolaridad', escolaridades),
           buildSection('Ocupación', ocupaciones),
           buildSection('Grupo dispensarial', gruposDisp),
-          buildSection('Embarazadas', embarazadas),
-          buildSection('Factores de riesgo', factoresRiesgo),
-          buildSection('Riesgo preconcepcional', riesgoPreconcepcionales),
-          buildSection('Control RPC', controlesRpc),
-          buildSection('Enfermedades', enfermedades),
-          buildSection('Discapacidades', discapacidades),
+          buildSection('Embarazadas', embarazadas, ocultarTotal: true),
+          buildSection('Factores de riesgo', factoresRiesgo,
+              ocultarTotal: true),
+          buildSection('Riesgo preconcepcional', riesgoPreconcepcionales,
+              ocultarTotal: true),
+          buildSection('Control RPC', controlesRpc, ocultarTotal: true),
+          buildSection('Enfermedades', enfermedades, ocultarTotal: true),
+          buildSection('Discapacidades', discapacidades, ocultarTotal: true),
         ],
       ),
     );
