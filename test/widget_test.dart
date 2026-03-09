@@ -8,7 +8,6 @@ void main() {
     await tester.pumpWidget(const MedicalFamilyCareApp());
 
     // Verifica que aparece algún texto de la pantalla de bienvenida
-    expect(find.text('Bienvenido'), findsOneWidget);
-    // Cambia 'Bienvenido' por el texto exacto que uses en BienvenidaScreen
+    expect(find.text('Medical Family Care'), findsOneWidget);
   });
 }

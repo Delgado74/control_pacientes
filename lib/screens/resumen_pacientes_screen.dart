@@ -13,6 +13,27 @@ class ResumenPacientesScreen extends StatefulWidget {
 }
 
 class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
+  static const List<String> _gruposEdad = [
+    '0-4',
+    '5-9',
+    '10-14',
+    '15-19',
+    '20-24',
+    '25-29',
+    '30-34',
+    '35-39',
+    '40-44',
+    '45-49',
+    '50-54',
+    '55-59',
+    '60-64',
+    '65-69',
+    '70-74',
+    '75-79',
+    '80-84',
+    '85+'
+  ];
+
   final dbHelper = DatabaseHelper.instance;
 
   Map<String, int> edadSexo = {};
@@ -110,117 +131,106 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
   }
 
   Future<void> _exportarPDF() async {
-    final pdf = pw.Document();
+    try {
+      final pdf = pw.Document();
 
-    pw.Widget buildSection(String titulo, Map<String, int> datos,
-        {bool ocultarTotal = false}) {
-      final datosFiltrados = ocultarTotal
-          ? (Map<String, int>.from(datos)..remove('TOTAL'))
-          : datos;
-      return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(titulo,
-              style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          ...datosFiltrados.entries.map((e) => pw.Text('${e.key}: ${e.value}')),
-          pw.SizedBox(height: 12),
-        ],
-      );
-    }
-
-    pw.Widget buildSectionEdadSexo(String titulo, Map<String, int> datos) {
-      final total = datos['TOTAL'] ?? 0;
-      int totalM = 0;
-      int totalF = 0;
-      for (var entry in datos.entries) {
-        if (entry.key.endsWith(' M')) totalM += entry.value;
-        if (entry.key.endsWith(' F')) totalF += entry.value;
+      pw.Widget buildSection(String titulo, Map<String, int> datos,
+          {bool ocultarTotal = false}) {
+        final datosFiltrados = ocultarTotal
+            ? (Map<String, int>.from(datos)..remove('TOTAL'))
+            : datos;
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(titulo,
+                style:
+                    pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 4),
+            ...datosFiltrados.entries
+                .map((e) => pw.Text('${e.key}: ${e.value}')),
+            pw.SizedBox(height: 12),
+          ],
+        );
       }
 
-      final grupos = [
-        '0-4',
-        '5-9',
-        '10-14',
-        '15-19',
-        '20-24',
-        '25-29',
-        '30-34',
-        '35-39',
-        '40-44',
-        '45-49',
-        '50-54',
-        '55-59',
-        '60-64',
-        '65-69',
-        '70-74',
-        '75-79',
-        '80-84',
-        '85+'
-      ];
+      pw.Widget buildSectionEdadSexo(String titulo, Map<String, int> datos) {
+        final total = datos['TOTAL'] ?? 0;
+        int totalM = 0;
+        int totalF = 0;
+        for (var entry in datos.entries) {
+          if (entry.key.endsWith(' M')) totalM += entry.value;
+          if (entry.key.endsWith(' F')) totalF += entry.value;
+        }
 
-      return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(titulo,
-              style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 8),
-          pw.TableHelper.fromTextArray(
-            headers: ['Edad', 'M', 'F', 'Total'],
-            data: [
-              ...grupos.map((g) {
-                final m = datos['$g M'] ?? 0;
-                final f = datos['$g F'] ?? 0;
-                return [g, '$m', '$f', '${m + f}'];
-              }),
-              ['Total', '$totalM', '$totalF', '$total'],
-            ],
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            cellAlignments: {
-              0: pw.Alignment.centerLeft,
-              1: pw.Alignment.center,
-              2: pw.Alignment.center,
-              3: pw.Alignment.center
-            },
-          ),
-          pw.SizedBox(height: 12),
-        ],
+        final grupos = _gruposEdad;
+
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(titulo,
+                style:
+                    pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            pw.TableHelper.fromTextArray(
+              headers: ['Edad', 'M', 'F', 'Total'],
+              data: [
+                ...grupos.map((g) {
+                  final m = datos['$g M'] ?? 0;
+                  final f = datos['$g F'] ?? 0;
+                  return [g, '$m', '$f', '${m + f}'];
+                }),
+                ['Total', '$totalM', '$totalF', '$total'],
+              ],
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.center,
+                2: pw.Alignment.center,
+                3: pw.Alignment.center
+              },
+            ),
+            pw.SizedBox(height: 12),
+          ],
+        );
+      }
+
+      pdf.addPage(
+        pw.MultiPage(
+          build: (context) => [
+            pw.Center(
+                child: pw.Text('Resumen de Pacientes',
+                    style: pw.TextStyle(
+                        fontSize: 22, fontWeight: pw.FontWeight.bold))),
+            pw.SizedBox(height: 20),
+            buildSectionEdadSexo('Edad y sexo', edadSexo),
+            buildSection('Color de piel', coloresPiel),
+            buildSection('Escolaridad', escolaridades),
+            buildSection('Ocupación', ocupaciones),
+            buildSection('Grupo dispensarial', gruposDisp),
+            buildSection('Embarazadas', embarazadas, ocultarTotal: true),
+            buildSection('Factores de riesgo', factoresRiesgo,
+                ocultarTotal: true),
+            buildSection('Riesgo preconcepcional', riesgoPreconcepcionales,
+                ocultarTotal: true),
+            buildSection('Control RPC', controlesRpc, ocultarTotal: true),
+            buildSection('Enfermedades', enfermedades, ocultarTotal: true),
+            buildSection('Discapacidades', discapacidades, ocultarTotal: true),
+          ],
+        ),
+      );
+
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/Resumen_Pacientes.pdf');
+      await file.writeAsBytes(await pdf.save());
+
+      await Share.shareXFiles([XFile(file.path)],
+          text: 'Resumen de Pacientes en PDF');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al exportar PDF: $e')),
       );
     }
-
-    pdf.addPage(
-      pw.MultiPage(
-        build: (context) => [
-          pw.Center(
-              child: pw.Text('Resumen de Pacientes',
-                  style: pw.TextStyle(
-                      fontSize: 22, fontWeight: pw.FontWeight.bold))),
-          pw.SizedBox(height: 20),
-          buildSectionEdadSexo('Edad y sexo', edadSexo),
-          buildSection('Color de piel', coloresPiel),
-          buildSection('Escolaridad', escolaridades),
-          buildSection('Ocupación', ocupaciones),
-          buildSection('Grupo dispensarial', gruposDisp),
-          buildSection('Embarazadas', embarazadas, ocultarTotal: true),
-          buildSection('Factores de riesgo', factoresRiesgo,
-              ocultarTotal: true),
-          buildSection('Riesgo preconcepcional', riesgoPreconcepcionales,
-              ocultarTotal: true),
-          buildSection('Control RPC', controlesRpc, ocultarTotal: true),
-          buildSection('Enfermedades', enfermedades, ocultarTotal: true),
-          buildSection('Discapacidades', discapacidades, ocultarTotal: true),
-        ],
-      ),
-    );
-
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/Resumen_Pacientes.pdf');
-    await file.writeAsBytes(await pdf.save());
-
-    await Share.shareXFiles([XFile(file.path)],
-        text: 'Resumen de Pacientes en PDF');
   }
 
   Widget _buildSeccionEdadSexo(String titulo, Map<String, int> datos) {
@@ -233,26 +243,7 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
       if (entry.key.endsWith(' F')) totalF += entry.value;
     }
 
-    final grupos = [
-      '0-4',
-      '5-9',
-      '10-14',
-      '15-19',
-      '20-24',
-      '25-29',
-      '30-34',
-      '35-39',
-      '40-44',
-      '45-49',
-      '50-54',
-      '55-59',
-      '60-64',
-      '65-69',
-      '70-74',
-      '75-79',
-      '80-84',
-      '85+'
-    ];
+    final grupos = _gruposEdad;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
