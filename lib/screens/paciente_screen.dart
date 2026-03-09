@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../db/database_helper.dart';
 
+String _maskCarnetIdentidad(String? carnet) {
+  if (carnet == null || carnet.isEmpty) return 'N/A';
+  if (carnet.length <= 4) return carnet;
+  return '${'*' * (carnet.length - 4)}${carnet.substring(carnet.length - 4)}';
+}
+
 class PacienteScreen extends StatefulWidget {
   const PacienteScreen({super.key});
 
@@ -802,7 +808,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                                 "CDR ${paciente['cdr'] ?? ''} - Casa ${paciente['numeroCasa'] ?? ''}\n"
                                 "${paciente['nombre'] ?? ''} (${paciente['edad'] ?? ''} años)"),
                             subtitle: Text(
-                              "Carnet de identidad: ${paciente['carnet_identidad'] ?? 'N/A'}\n"
+                              "Carnet de identidad: ${_maskCarnetIdentidad(paciente['carnet_identidad']?.toString())}\n"
                               "Sexo: ${paciente['sexo'] ?? 'N/A'} - Color piel: ${paciente['color_piel'] ?? 'N/A'}\n"
                               "Escolaridad: ${paciente['escolaridad'] ?? 'N/A'} - Ocupación: ${paciente['ocupacion'] ?? 'N/A'}\n"
                               "Embarazada: ${paciente['embarazada'] ?? 'N/A'}\n"

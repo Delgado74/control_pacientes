@@ -15,6 +15,57 @@ class DatabaseHelper {
   static const _dbName = 'pacientes.db';
   static const _dbVersion = 4;
 
+  static const List<String> gruposEdad = [
+    '0-4',
+    '5-9',
+    '10-14',
+    '15-19',
+    '20-24',
+    '25-29',
+    '30-34',
+    '35-39',
+    '40-44',
+    '45-49',
+    '50-54',
+    '55-59',
+    '60-64',
+    '65-69',
+    '70-74',
+    '75-79',
+    '80-84',
+    '85+'
+  ];
+
+  static String _generarCaseEdad() {
+    final cases = <String>[];
+    for (var i = 0; i < gruposEdad.length - 1; i++) {
+      final parts = gruposEdad[i].split('-');
+      cases.add(
+          "WHEN edad BETWEEN ${parts[0]} AND ${parts[1]} THEN '${gruposEdad[i]}'");
+    }
+    cases.add("ELSE '${gruposEdad.last}'");
+    return cases.join('\n');
+  }
+
+  static Map<String, int> _inicializarConteoEdad() {
+    final map = <String, int>{};
+    for (var g in gruposEdad) {
+      map[g] = 0;
+    }
+    map['TOTAL'] = 0;
+    return map;
+  }
+
+  static Map<String, int> _inicializarConteoEdadSexo() {
+    final map = <String, int>{};
+    for (var g in gruposEdad) {
+      map['$g M'] = 0;
+      map['$g F'] = 0;
+    }
+    map['TOTAL'] = 0;
+    return map;
+  }
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDb();
@@ -188,51 +239,14 @@ class DatabaseHelper {
     final result = await db.rawQuery('''
       SELECT 
         CASE
-          WHEN edad BETWEEN 0 AND 4 THEN '0-4'
-          WHEN edad BETWEEN 5 AND 9 THEN '5-9'
-          WHEN edad BETWEEN 10 AND 14 THEN '10-14'
-          WHEN edad BETWEEN 15 AND 19 THEN '15-19'
-          WHEN edad BETWEEN 20 AND 24 THEN '20-24'
-          WHEN edad BETWEEN 25 AND 29 THEN '25-29'
-          WHEN edad BETWEEN 30 AND 34 THEN '30-34'
-          WHEN edad BETWEEN 35 AND 39 THEN '35-39'
-          WHEN edad BETWEEN 40 AND 44 THEN '40-44'
-          WHEN edad BETWEEN 45 AND 49 THEN '45-49'
-          WHEN edad BETWEEN 50 AND 54 THEN '50-54'
-          WHEN edad BETWEEN 55 AND 59 THEN '55-59'
-          WHEN edad BETWEEN 60 AND 64 THEN '60-64'
-          WHEN edad BETWEEN 65 AND 69 THEN '65-69'
-          WHEN edad BETWEEN 70 AND 74 THEN '70-74'
-          WHEN edad BETWEEN 75 AND 79 THEN '75-79'
-          WHEN edad BETWEEN 80 AND 84 THEN '80-84'
-          ELSE '85+' 
+          ${_generarCaseEdad()}
         END as grupo_edad,
         COUNT(*) as total
       FROM pacientes
       GROUP BY grupo_edad
     ''');
 
-    Map<String, int> conteo = {
-      '0-4': 0,
-      '5-9': 0,
-      '10-14': 0,
-      '15-19': 0,
-      '20-24': 0,
-      '25-29': 0,
-      '30-34': 0,
-      '35-39': 0,
-      '40-44': 0,
-      '45-49': 0,
-      '50-54': 0,
-      '55-59': 0,
-      '60-64': 0,
-      '65-69': 0,
-      '70-74': 0,
-      '75-79': 0,
-      '80-84': 0,
-      '85+': 0,
-      'TOTAL': 0,
-    };
+    Map<String, int> conteo = _inicializarConteoEdad();
 
     for (var row in result) {
       final grupo = row['grupo_edad'] as String;
@@ -249,24 +263,7 @@ class DatabaseHelper {
     final result = await db.rawQuery('''
       SELECT 
         CASE
-          WHEN edad BETWEEN 0 AND 4 THEN '0-4'
-          WHEN edad BETWEEN 5 AND 9 THEN '5-9'
-          WHEN edad BETWEEN 10 AND 14 THEN '10-14'
-          WHEN edad BETWEEN 15 AND 19 THEN '15-19'
-          WHEN edad BETWEEN 20 AND 24 THEN '20-24'
-          WHEN edad BETWEEN 25 AND 29 THEN '25-29'
-          WHEN edad BETWEEN 30 AND 34 THEN '30-34'
-          WHEN edad BETWEEN 35 AND 39 THEN '35-39'
-          WHEN edad BETWEEN 40 AND 44 THEN '40-44'
-          WHEN edad BETWEEN 45 AND 49 THEN '45-49'
-          WHEN edad BETWEEN 50 AND 54 THEN '50-54'
-          WHEN edad BETWEEN 55 AND 59 THEN '55-59'
-          WHEN edad BETWEEN 60 AND 64 THEN '60-64'
-          WHEN edad BETWEEN 65 AND 69 THEN '65-69'
-          WHEN edad BETWEEN 70 AND 74 THEN '70-74'
-          WHEN edad BETWEEN 75 AND 79 THEN '75-79'
-          WHEN edad BETWEEN 80 AND 84 THEN '80-84'
-          ELSE '85+' 
+          ${_generarCaseEdad()}
         END as grupo_edad,
         sexo,
         COUNT(*) as total
@@ -274,45 +271,7 @@ class DatabaseHelper {
       GROUP BY grupo_edad, sexo
     ''');
 
-    Map<String, int> conteo = {
-      '0-4 M': 0,
-      '0-4 F': 0,
-      '5-9 M': 0,
-      '5-9 F': 0,
-      '10-14 M': 0,
-      '10-14 F': 0,
-      '15-19 M': 0,
-      '15-19 F': 0,
-      '20-24 M': 0,
-      '20-24 F': 0,
-      '25-29 M': 0,
-      '25-29 F': 0,
-      '30-34 M': 0,
-      '30-34 F': 0,
-      '35-39 M': 0,
-      '35-39 F': 0,
-      '40-44 M': 0,
-      '40-44 F': 0,
-      '45-49 M': 0,
-      '45-49 F': 0,
-      '50-54 M': 0,
-      '50-54 F': 0,
-      '55-59 M': 0,
-      '55-59 F': 0,
-      '60-64 M': 0,
-      '60-64 F': 0,
-      '65-69 M': 0,
-      '65-69 F': 0,
-      '70-74 M': 0,
-      '70-74 F': 0,
-      '75-79 M': 0,
-      '75-79 F': 0,
-      '80-84 M': 0,
-      '80-84 F': 0,
-      '85+ M': 0,
-      '85+ F': 0,
-      'TOTAL': 0,
-    };
+    Map<String, int> conteo = _inicializarConteoEdadSexo();
 
     for (var row in result) {
       final grupo = row['grupo_edad'] as String;

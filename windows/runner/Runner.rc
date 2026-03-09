@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "control_pacientes" "\0"
+            VALUE "CompanyName", "Medical Family Care" "\0"
+            VALUE "FileDescription", "Medical Family Care (MFC)" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "control_pacientes" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "control_pacientes.exe" "\0"
-            VALUE "ProductName", "control_pacientes" "\0"
+            VALUE "InternalName", "medical_family_care" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Medical Family Care. All rights reserved." "\0"
+            VALUE "OriginalFilename", "Medical Family Care.exe" "\0"
+            VALUE "ProductName", "Medical Family Care" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

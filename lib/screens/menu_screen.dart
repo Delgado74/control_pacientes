@@ -4,7 +4,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import '../main.dart';
+import '../theme/app_colors.dart';
 import 'localizacion_screen.dart';
 import 'paciente_screen.dart';
 import 'familia_screen.dart';

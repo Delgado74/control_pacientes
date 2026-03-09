@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import '../theme/app_colors.dart';
 import 'menu_screen.dart';
 
 class BienvenidaScreen extends StatelessWidget {

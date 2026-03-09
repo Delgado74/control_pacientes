@@ -1,11 +1,11 @@
 {
-    "name": "control_pacientes",
-    "short_name": "control_pacientes",
+    "name": "Medical Family Care (MFC)",
+    "short_name": "MFC",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Aplicación para control de pacientes en Medicina Familiar",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

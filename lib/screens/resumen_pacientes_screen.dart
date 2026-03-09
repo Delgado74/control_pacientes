@@ -13,26 +13,7 @@ class ResumenPacientesScreen extends StatefulWidget {
 }
 
 class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
-  static const List<String> _gruposEdad = [
-    '0-4',
-    '5-9',
-    '10-14',
-    '15-19',
-    '20-24',
-    '25-29',
-    '30-34',
-    '35-39',
-    '40-44',
-    '45-49',
-    '50-54',
-    '55-59',
-    '60-64',
-    '65-69',
-    '70-74',
-    '75-79',
-    '80-84',
-    '85+'
-  ];
+  List<String> get _gruposEdad => DatabaseHelper.gruposEdad;
 
   final dbHelper = DatabaseHelper.instance;
 
