@@ -338,7 +338,7 @@ class DatabaseHelper {
         WHERE embarazada = 'Sí'
       ''');
       int total = result.first['total'] as int? ?? 0;
-      return {'Embarazada $total': total};
+      return {'Embarazada': total};
     }
 
     final result = await db.rawQuery('''

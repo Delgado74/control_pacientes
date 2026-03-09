@@ -157,7 +157,10 @@ class _PacienteScreenState extends State<PacienteScreen> {
 
   @override
   void dispose() {
+    _cdrController.dispose();
+    _numeroCasaController.dispose();
     _nombreController.dispose();
+    _carnetIdentidadController.dispose();
     _fechaNacimientoController.dispose();
     _edadController.dispose();
     for (var c in enfermedades.values) {
@@ -1095,8 +1098,9 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
                     DateTime hoy = DateTime.now();
                     int edad = hoy.year - fecha.year;
                     if (hoy.month < fecha.month ||
-                        (hoy.month == fecha.month && hoy.day < fecha.day))
+                        (hoy.month == fecha.month && hoy.day < fecha.day)) {
                       edad--;
+                    }
                     edadController.text = edad.toString();
                   } catch (_) {}
                 },
@@ -1258,7 +1262,6 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
                 onChanged: (v) => setState(() => controlRpc = v),
               ),
               const SizedBox(height: 8),
-              const SizedBox(height: 8),
               const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Enfermedades (indique clasificación si aplica)",
@@ -1292,7 +1295,6 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
                         ))
                     .toList(),
               ),
-              const SizedBox(height: 12),
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: _guardarEdicion,
