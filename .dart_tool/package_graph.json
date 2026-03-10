@@ -1,10 +1,10 @@
 {
   "roots": [
-    "control_pacientes"
+    "medical_family_care"
   ],
   "packages": [
     {
-      "name": "control_pacientes",
+      "name": "medical_family_care",
       "version": "1.0.0+1",
       "dependencies": [
         "collection",
@@ -70,7 +70,7 @@
     },
     {
       "name": "file_selector",
-      "version": "1.0.4",
+      "version": "1.1.0",
       "dependencies": [
         "file_selector_android",
         "file_selector_ios",
@@ -181,10 +181,9 @@
     },
     {
       "name": "file_picker",
-      "version": "10.3.3",
+      "version": "8.3.7",
       "dependencies": [
         "cross_file",
-        "dbus",
         "ffi",
         "flutter",
         "flutter_plugin_android_lifecycle",
@@ -207,7 +206,7 @@
     },
     {
       "name": "sqflite_common_ffi",
-      "version": "2.3.6",
+      "version": "2.3.7+1",
       "dependencies": [
         "meta",
         "path",
@@ -268,7 +267,7 @@
     },
     {
       "name": "json_annotation",
-      "version": "4.9.0",
+      "version": "4.11.0",
       "dependencies": [
         "meta"
       ]
@@ -306,7 +305,7 @@
     },
     {
       "name": "lints",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "dependencies": []
     },
     {
@@ -385,7 +384,7 @@
     },
     {
       "name": "file_selector_windows",
-      "version": "0.9.3+4",
+      "version": "0.9.3+5",
       "dependencies": [
         "cross_file",
         "file_selector_platform_interface",
@@ -404,7 +403,7 @@
     },
     {
       "name": "file_selector_platform_interface",
-      "version": "2.6.2",
+      "version": "2.7.0",
       "dependencies": [
         "cross_file",
         "flutter",
@@ -414,7 +413,7 @@
     },
     {
       "name": "file_selector_macos",
-      "version": "0.9.4+4",
+      "version": "0.9.5",
       "dependencies": [
         "cross_file",
         "file_selector_platform_interface",
@@ -423,7 +422,7 @@
     },
     {
       "name": "file_selector_linux",
-      "version": "0.9.3+2",
+      "version": "0.9.4",
       "dependencies": [
         "cross_file",
         "file_selector_platform_interface",
@@ -432,7 +431,7 @@
     },
     {
       "name": "file_selector_ios",
-      "version": "0.5.3+2",
+      "version": "0.5.3+4",
       "dependencies": [
         "file_selector_platform_interface",
         "flutter"
@@ -440,7 +439,7 @@
     },
     {
       "name": "file_selector_android",
-      "version": "0.5.2",
+      "version": "0.5.2+4",
       "dependencies": [
         "file_selector_platform_interface",
         "flutter",
@@ -449,7 +448,7 @@
     },
     {
       "name": "url_launcher_windows",
-      "version": "3.1.4",
+      "version": "3.1.5",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"
@@ -475,7 +474,7 @@
     },
     {
       "name": "url_launcher_macos",
-      "version": "3.2.3",
+      "version": "3.2.5",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"
@@ -483,7 +482,7 @@
     },
     {
       "name": "url_launcher_linux",
-      "version": "3.2.1",
+      "version": "3.2.2",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"
@@ -491,7 +490,7 @@
     },
     {
       "name": "url_launcher_ios",
-      "version": "6.3.4",
+      "version": "6.3.6",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"
@@ -499,7 +498,7 @@
     },
     {
       "name": "url_launcher_android",
-      "version": "6.3.23",
+      "version": "6.3.28",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"
@@ -550,7 +549,7 @@
     },
     {
       "name": "win32",
-      "version": "5.14.0",
+      "version": "5.15.0",
       "dependencies": [
         "ffi"
       ]
@@ -562,7 +561,7 @@
     },
     {
       "name": "ffi",
-      "version": "2.1.4",
+      "version": "2.2.0",
       "dependencies": []
     },
     {
@@ -600,7 +599,7 @@
     },
     {
       "name": "cross_file",
-      "version": "0.3.4+2",
+      "version": "0.3.5+2",
       "dependencies": [
         "meta",
         "web"
@@ -623,7 +622,7 @@
     },
     {
       "name": "http",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "dependencies": [
         "async",
         "http_parser",
@@ -650,7 +649,7 @@
     },
     {
       "name": "crypto",
-      "version": "3.0.6",
+      "version": "3.0.7",
       "dependencies": [
         "typed_data"
       ]
@@ -677,25 +676,15 @@
       ]
     },
     {
-      "name": "dbus",
-      "version": "0.7.11",
-      "dependencies": [
-        "args",
-        "ffi",
-        "meta",
-        "xml"
-      ]
-    },
-    {
       "name": "flutter_plugin_android_lifecycle",
-      "version": "2.0.30",
+      "version": "2.0.33",
       "dependencies": [
         "flutter"
       ]
     },
     {
       "name": "equatable",
-      "version": "2.0.7",
+      "version": "2.0.8",
       "dependencies": [
         "collection",
         "meta"
@@ -717,7 +706,7 @@
     },
     {
       "name": "sqlite3",
-      "version": "2.9.1",
+      "version": "2.9.4",
       "dependencies": [
         "collection",
         "ffi",
@@ -759,7 +748,7 @@
     },
     {
       "name": "path_provider_foundation",
-      "version": "2.4.2",
+      "version": "2.5.1",
       "dependencies": [
         "flutter",
         "path_provider_platform_interface"
@@ -767,7 +756,7 @@
     },
     {
       "name": "path_provider_android",
-      "version": "2.2.18",
+      "version": "2.2.22",
       "dependencies": [
         "flutter",
         "path_provider_platform_interface"
@@ -831,7 +820,7 @@
     },
     {
       "name": "source_span",
-      "version": "1.10.1",
+      "version": "1.10.2",
       "dependencies": [
         "collection",
         "path",
@@ -881,12 +870,10 @@
     },
     {
       "name": "uuid",
-      "version": "4.5.1",
+      "version": "4.5.3",
       "dependencies": [
         "crypto",
-        "fixnum",
-        "meta",
-        "sprintf"
+        "fixnum"
       ]
     },
     {
@@ -901,7 +888,7 @@
     },
     {
       "name": "petitparser",
-      "version": "7.0.1",
+      "version": "7.0.2",
       "dependencies": [
         "collection",
         "meta"
@@ -942,11 +929,6 @@
     {
       "name": "fixnum",
       "version": "1.1.1",
-      "dependencies": []
-    },
-    {
-      "name": "sprintf",
-      "version": "7.0.0",
       "dependencies": []
     }
   ],

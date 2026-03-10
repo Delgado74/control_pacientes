@@ -13,6 +13,58 @@ class DatabaseHelper {
 
   static Database? _database;
   static const _dbName = 'pacientes.db';
+  static const _dbVersion = 4;
+
+  static const List<String> gruposEdad = [
+    '0-4',
+    '5-9',
+    '10-14',
+    '15-19',
+    '20-24',
+    '25-29',
+    '30-34',
+    '35-39',
+    '40-44',
+    '45-49',
+    '50-54',
+    '55-59',
+    '60-64',
+    '65-69',
+    '70-74',
+    '75-79',
+    '80-84',
+    '85+'
+  ];
+
+  static String _generarCaseEdad() {
+    final cases = <String>[];
+    for (var i = 0; i < gruposEdad.length - 1; i++) {
+      final parts = gruposEdad[i].split('-');
+      cases.add(
+          "WHEN edad BETWEEN ${parts[0]} AND ${parts[1]} THEN '${gruposEdad[i]}'");
+    }
+    cases.add("ELSE '${gruposEdad.last}'");
+    return cases.join('\n');
+  }
+
+  static Map<String, int> _inicializarConteoEdad() {
+    final map = <String, int>{};
+    for (var g in gruposEdad) {
+      map[g] = 0;
+    }
+    map['TOTAL'] = 0;
+    return map;
+  }
+
+  static Map<String, int> _inicializarConteoEdadSexo() {
+    final map = <String, int>{};
+    for (var g in gruposEdad) {
+      map['$g M'] = 0;
+      map['$g F'] = 0;
+    }
+    map['TOTAL'] = 0;
+    return map;
+  }
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -26,8 +78,9 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: _dbVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -42,6 +95,7 @@ class DatabaseHelper {
         cdr TEXT,
         numeroCasa TEXT,
         nombre TEXT,
+        carnet_identidad TEXT,
         sexo TEXT,
         fecha_nac TEXT,
         edad INTEGER,
@@ -132,6 +186,13 @@ class DatabaseHelper {
     ''');
   }
 
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 4) {
+      await db
+          .execute('ALTER TABLE pacientes ADD COLUMN carnet_identidad TEXT');
+    }
+  }
+
   // ================= PACIENTES =================
   Future<int> insertarPaciente(Map<String, dynamic> paciente) async {
     final db = await database;
@@ -155,14 +216,16 @@ class DatabaseHelper {
     return await db.query('pacientes');
   }
 
-  Future<List<Map<String, dynamic>>> obtenerPacientesFiltrados(String where, List<dynamic> args) async {
+  Future<List<Map<String, dynamic>>> obtenerPacientesFiltrados(
+      String where, List<dynamic> args) async {
     final db = await database;
     return await db.query('pacientes', where: where, whereArgs: args);
   }
 
   Future<int> actualizarPaciente(int id, Map<String, dynamic> paciente) async {
     final db = await database;
-    return await db.update('pacientes', paciente, where: 'id = ?', whereArgs: [id]);
+    return await db
+        .update('pacientes', paciente, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> eliminarPaciente(int id) async {
@@ -176,41 +239,48 @@ class DatabaseHelper {
     final result = await db.rawQuery('''
       SELECT 
         CASE
-          WHEN edad BETWEEN 0 AND 4 THEN '0-4'
-          WHEN edad BETWEEN 5 AND 9 THEN '5-9'
-          WHEN edad BETWEEN 10 AND 14 THEN '10-14'
-          WHEN edad BETWEEN 15 AND 19 THEN '15-19'
-          WHEN edad BETWEEN 20 AND 24 THEN '20-24'
-          WHEN edad BETWEEN 25 AND 29 THEN '25-29'
-          WHEN edad BETWEEN 30 AND 34 THEN '30-34'
-          WHEN edad BETWEEN 35 AND 39 THEN '35-39'
-          WHEN edad BETWEEN 40 AND 44 THEN '40-44'
-          WHEN edad BETWEEN 45 AND 49 THEN '45-49'
-          WHEN edad BETWEEN 50 AND 54 THEN '50-54'
-          WHEN edad BETWEEN 55 AND 59 THEN '55-59'
-          WHEN edad BETWEEN 60 AND 64 THEN '60-64'
-          WHEN edad BETWEEN 65 AND 69 THEN '65-69'
-          WHEN edad BETWEEN 70 AND 74 THEN '70-74'
-          WHEN edad BETWEEN 75 AND 79 THEN '75-79'
-          WHEN edad BETWEEN 80 AND 84 THEN '80-84'
-          ELSE '85+' 
+          ${_generarCaseEdad()}
         END as grupo_edad,
         COUNT(*) as total
       FROM pacientes
       GROUP BY grupo_edad
     ''');
 
-    Map<String, int> conteo = {
-      '0-4': 0, '5-9': 0, '10-14': 0, '15-19': 0, '20-24': 0,
-      '25-29': 0, '30-34': 0, '35-39': 0, '40-44': 0, '45-49': 0,
-      '50-54': 0, '55-59': 0, '60-64': 0, '65-69': 0, '70-74': 0,
-      '75-79': 0, '80-84': 0, '85+': 0, 'TOTAL': 0,
-    };
+    Map<String, int> conteo = _inicializarConteoEdad();
 
     for (var row in result) {
       final grupo = row['grupo_edad'] as String;
       final total = row['total'] as int;
       conteo[grupo] = total;
+      conteo['TOTAL'] = conteo['TOTAL']! + total;
+    }
+
+    return conteo;
+  }
+
+  Future<Map<String, int>> contarPorEdadSexo() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        CASE
+          ${_generarCaseEdad()}
+        END as grupo_edad,
+        sexo,
+        COUNT(*) as total
+      FROM pacientes
+      GROUP BY grupo_edad, sexo
+    ''');
+
+    Map<String, int> conteo = _inicializarConteoEdadSexo();
+
+    for (var row in result) {
+      final grupo = row['grupo_edad'] as String;
+      final sexo = row['sexo'] as String? ?? '';
+      final total = row['total'] as int;
+      final key = '$grupo ${sexo == 'Masculino' ? 'M' : 'F'}';
+      if (conteo.containsKey(key)) {
+        conteo[key] = total;
+      }
       conteo['TOTAL'] = conteo['TOTAL']! + total;
     }
 
@@ -227,7 +297,7 @@ class DatabaseHelper {
         WHERE embarazada = 'Sí'
       ''');
       int total = result.first['total'] as int? ?? 0;
-      return {'SI': total};
+      return {'Embarazada': total};
     }
 
     final result = await db.rawQuery('''
@@ -238,10 +308,23 @@ class DatabaseHelper {
 
     Map<String, int> conteo = {'TOTAL': 0};
     for (var row in result) {
-      final valor = row['valor']?.toString() ?? 'N/A';
-      final total = row['total'] as int;
-      conteo[valor] = total;
-      conteo['TOTAL'] = conteo['TOTAL']! + total;
+      String valor = row['valor']?.toString() ?? 'N/A';
+      if (valor.isEmpty || valor == 'N/A') continue;
+
+      int total = row['total'] as int;
+
+      if (campo == 'riesgo_preconcepcional') {
+        if (valor == 'Ninguno') continue;
+        conteo[valor] = total;
+        conteo['TOTAL'] = conteo['TOTAL']! + total;
+      } else if (campo == 'control_rpc') {
+        if (valor == 'Ninguno') continue;
+        conteo[valor] = total;
+        conteo['TOTAL'] = conteo['TOTAL']! + total;
+      } else {
+        conteo[valor] = total;
+        conteo['TOTAL'] = conteo['TOTAL']! + total;
+      }
     }
     return conteo;
   }
@@ -251,7 +334,8 @@ class DatabaseHelper {
     Map<String, int> conteo = {'TOTAL': 0};
 
     for (var campo in campos) {
-      final result = await db.rawQuery('SELECT SUM($campo) as total FROM pacientes');
+      final result =
+          await db.rawQuery('SELECT SUM($campo) as total FROM pacientes');
       final total = result.first['total'] as int? ?? 0;
       conteo[campo] = total;
       conteo['TOTAL'] = conteo['TOTAL']! + total;
@@ -284,7 +368,8 @@ class DatabaseHelper {
 
   Future<int> actualizarFamilia(int id, Map<String, dynamic> familia) async {
     final db = await database;
-    return await db.update('familias', familia, where: 'id = ?', whereArgs: [id]);
+    return await db
+        .update('familias', familia, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> eliminarFamilia(int id) async {
@@ -321,9 +406,11 @@ class DatabaseHelper {
     return await db.query('localizaciones');
   }
 
-  Future<int> actualizarLocalizacion(int id, Map<String, dynamic> localizacion) async {
+  Future<int> actualizarLocalizacion(
+      int id, Map<String, dynamic> localizacion) async {
     final db = await database;
-    return await db.update('localizaciones', localizacion, where: 'id = ?', whereArgs: [id]);
+    return await db.update('localizaciones', localizacion,
+        where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> eliminarLocalizacion(int id) async {

@@ -13,10 +13,11 @@ class ResumenPacientesScreen extends StatefulWidget {
 }
 
 class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
+  List<String> get _gruposEdad => DatabaseHelper.gruposEdad;
+
   final dbHelper = DatabaseHelper.instance;
 
-  Map<String, int> edades = {};
-  Map<String, int> sexos = {};
+  Map<String, int> edadSexo = {};
   Map<String, int> coloresPiel = {};
   Map<String, int> escolaridades = {};
   Map<String, int> ocupaciones = {};
@@ -29,15 +30,46 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
   Map<String, int> discapacidades = {};
 
   final List<String> camposRiesgo = [
-    'leptospirosis','alcohol','drogar','its','tb','sedentarismo','donantes','social','otro',
+    'leptospirosis',
+    'alcohol',
+    'drogar',
+    'its',
+    'tb',
+    'sedentarismo',
+    'donantes',
+    'social',
+    'otro',
   ];
 
   final List<String> camposEnfermedades = [
-    'hta','dm','hlp','ab','ecv','sci','cancer','epoc','sida','fumador','obeso','alcoholico','erc','autismo','cirrosis','droga','otra',
+    'hta',
+    'dm',
+    'hlp',
+    'ab',
+    'ecv',
+    'sci',
+    'cancer',
+    'epoc',
+    'sida',
+    'fumador',
+    'obeso',
+    'alcoholico',
+    'erc',
+    'autismo',
+    'cirrosis',
+    'droga',
+    'otra',
   ];
 
   final List<String> camposDiscapacidades = [
-    'visual','auditiva','fisica','sordociego','lvh','intelectual','mixto','sensitiva',
+    'visual',
+    'auditiva',
+    'fisica',
+    'sordociego',
+    'lvh',
+    'intelectual',
+    'mixto',
+    'sensitiva',
   ];
 
   bool cargando = true;
@@ -49,22 +81,22 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
   }
 
   Future<void> _cargarDatos() async {
-    final edadesConteo = await dbHelper.contarPorEdad();
-    final sexosConteo = await dbHelper.contarPorCampo('sexo');
+    final edadSexoConteo = await dbHelper.contarPorEdadSexo();
     final colorPielConteo = await dbHelper.contarPorCampo('color_piel');
     final escolaridadConteo = await dbHelper.contarPorCampo('escolaridad');
     final ocupacionConteo = await dbHelper.contarPorCampo('ocupacion');
     final grupoDispConteo = await dbHelper.contarPorCampo('grupo_disp');
     final embarazadaConteo = await dbHelper.contarPorCampo('embarazada');
-    final riesgoPreconcepcionalConteo = await dbHelper.contarPorCampo('riesgo_preconcepcional');
+    final riesgoPreconcepcionalConteo =
+        await dbHelper.contarPorCampo('riesgo_preconcepcional');
     final controlRpcConteo = await dbHelper.contarPorCampo('control_rpc');
     final riesgoConteo = await dbHelper.contarPorFlags(camposRiesgo);
     final enfermedadConteo = await dbHelper.contarPorFlags(camposEnfermedades);
-    final discapacidadConteo = await dbHelper.contarPorFlags(camposDiscapacidades);
+    final discapacidadConteo =
+        await dbHelper.contarPorFlags(camposDiscapacidades);
 
     setState(() {
-      edades = edadesConteo;
-      sexos = sexosConteo;
+      edadSexo = edadSexoConteo;
       coloresPiel = colorPielConteo;
       escolaridades = escolaridadConteo;
       ocupaciones = ocupacionConteo;
@@ -79,54 +111,120 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
     });
   }
 
-  /// 🧾 Genera PDF con resumen de pacientes y abre menú de compartir
   Future<void> _exportarPDF() async {
-    final pdf = pw.Document();
+    try {
+      final pdf = pw.Document();
 
-    pw.Widget buildSection(String titulo, Map<String,int> datos) {
-      return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(titulo, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          ...datos.entries.map((e) => pw.Text('${e.key}: ${e.value}')),
-          pw.SizedBox(height: 12),
-        ],
+      pw.Widget buildSection(String titulo, Map<String, int> datos,
+          {bool ocultarTotal = false}) {
+        final datosFiltrados = ocultarTotal
+            ? (Map<String, int>.from(datos)..remove('TOTAL'))
+            : datos;
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(titulo,
+                style:
+                    pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 4),
+            ...datosFiltrados.entries
+                .map((e) => pw.Text('${e.key}: ${e.value}')),
+            pw.SizedBox(height: 12),
+          ],
+        );
+      }
+
+      pw.Widget buildSectionEdadSexo(String titulo, Map<String, int> datos) {
+        final total = datos['TOTAL'] ?? 0;
+        int totalM = 0;
+        int totalF = 0;
+        for (var entry in datos.entries) {
+          if (entry.key.endsWith(' M')) totalM += entry.value;
+          if (entry.key.endsWith(' F')) totalF += entry.value;
+        }
+
+        final grupos = _gruposEdad;
+
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(titulo,
+                style:
+                    pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            pw.TableHelper.fromTextArray(
+              headers: ['Edad', 'M', 'F', 'Total'],
+              data: [
+                ...grupos.map((g) {
+                  final m = datos['$g M'] ?? 0;
+                  final f = datos['$g F'] ?? 0;
+                  return [g, '$m', '$f', '${m + f}'];
+                }),
+                ['Total', '$totalM', '$totalF', '$total'],
+              ],
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.center,
+                2: pw.Alignment.center,
+                3: pw.Alignment.center
+              },
+            ),
+            pw.SizedBox(height: 12),
+          ],
+        );
+      }
+
+      pdf.addPage(
+        pw.MultiPage(
+          build: (context) => [
+            pw.Center(
+                child: pw.Text('Resumen de Pacientes',
+                    style: pw.TextStyle(
+                        fontSize: 22, fontWeight: pw.FontWeight.bold))),
+            pw.SizedBox(height: 20),
+            buildSectionEdadSexo('Edad y sexo', edadSexo),
+            buildSection('Color de piel', coloresPiel),
+            buildSection('Escolaridad', escolaridades),
+            buildSection('Ocupación', ocupaciones),
+            buildSection('Grupo dispensarial', gruposDisp),
+            buildSection('Embarazadas', embarazadas, ocultarTotal: true),
+            buildSection('Factores de riesgo', factoresRiesgo,
+                ocultarTotal: true),
+            buildSection('Riesgo preconcepcional', riesgoPreconcepcionales,
+                ocultarTotal: true),
+            buildSection('Control RPC', controlesRpc, ocultarTotal: true),
+            buildSection('Enfermedades', enfermedades, ocultarTotal: true),
+            buildSection('Discapacidades', discapacidades, ocultarTotal: true),
+          ],
+        ),
+      );
+
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/Resumen_Pacientes.pdf');
+      await file.writeAsBytes(await pdf.save());
+
+      await Share.shareXFiles([XFile(file.path)],
+          text: 'Resumen de Pacientes en PDF');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al exportar PDF: $e')),
       );
     }
-
-    pdf.addPage(
-      pw.MultiPage(
-        build: (context) => [
-          pw.Center(child: pw.Text('Resumen de Pacientes', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold))),
-          pw.SizedBox(height: 20),
-          buildSection('Edades', edades),
-          buildSection('Sexo', sexos),
-          buildSection('Color de piel', coloresPiel),
-          buildSection('Escolaridad', escolaridades),
-          buildSection('Ocupación', ocupaciones),
-          buildSection('Grupo dispensarial', gruposDisp),
-          buildSection('Embarazadas', embarazadas),
-          buildSection('Factores de riesgo', factoresRiesgo),
-          buildSection('Riesgo preconcepcional', riesgoPreconcepcionales),
-          buildSection('Control RPC', controlesRpc),
-          buildSection('Enfermedades', enfermedades),
-          buildSection('Discapacidades', discapacidades),
-        ],
-      ),
-    );
-
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/Resumen_Pacientes.pdf');
-    await file.writeAsBytes(await pdf.save());
-
-    await Share.shareXFiles([XFile(file.path)], text: 'Resumen de Pacientes en PDF');
   }
 
-  Widget _buildSeccion(String titulo, Map<String,int> datos, {bool ocultarTotal = false}) {
-    final datosFiltrados = ocultarTotal
-        ? (Map<String,int>.from(datos)..remove('TOTAL'))
-        : datos;
+  Widget _buildSeccionEdadSexo(String titulo, Map<String, int> datos) {
+    final total = datos['TOTAL'] ?? 0;
+
+    int totalM = 0;
+    int totalF = 0;
+    for (var entry in datos.entries) {
+      if (entry.key.endsWith(' M')) totalM += entry.value;
+      if (entry.key.endsWith(' F')) totalF += entry.value;
+    }
+
+    final grupos = _gruposEdad;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -135,7 +233,85 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(titulo, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(titulo,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(),
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(1),
+                3: FlexColumnWidth(1),
+              },
+              children: [
+                const TableRow(
+                  children: [
+                    Text('Edad', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('M',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                    Text('F',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                    Text('Total',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                  ],
+                ),
+                ...grupos.map((g) {
+                  final m = datos['$g M'] ?? 0;
+                  final f = datos['$g F'] ?? 0;
+                  final totalGrupo = m + f;
+                  return TableRow(
+                    children: [
+                      Text(g),
+                      Text('$m', textAlign: TextAlign.center),
+                      Text('$f', textAlign: TextAlign.center),
+                      Text('$totalGrupo',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  );
+                }),
+                TableRow(
+                  children: [
+                    const Text('Total',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('$totalM',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('$totalF',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('$total',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeccion(String titulo, Map<String, int> datos,
+      {bool ocultarTotal = false}) {
+    final datosFiltrados =
+        ocultarTotal ? (Map<String, int>.from(datos)..remove('TOTAL')) : datos;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(titulo,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Divider(),
             ...datosFiltrados.entries.map((e) => Text('${e.key}: ${e.value}')),
           ],
@@ -160,23 +336,28 @@ class _ResumenPacientesScreenState extends State<ResumenPacientesScreen> {
       body: cargando
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildSeccion('Edades', edades),
-            _buildSeccion('Sexo', sexos),
-            _buildSeccion('Color de piel', coloresPiel),
-            _buildSeccion('Escolaridad', escolaridades),
-            _buildSeccion('Ocupación', ocupaciones),
-            _buildSeccion('Grupo dispensarial', gruposDisp),
-            _buildSeccion('Embarazadas', embarazadas, ocultarTotal: true),
-            _buildSeccion('Factores de riesgo', factoresRiesgo, ocultarTotal: true),
-            _buildSeccion('Riesgo preconcepcional', riesgoPreconcepcionales),
-            _buildSeccion('Control RPC', controlesRpc, ocultarTotal: true),
-            _buildSeccion('Enfermedades', enfermedades, ocultarTotal: true),
-            _buildSeccion('Discapacidades', discapacidades, ocultarTotal: true),
-          ],
-        ),
-      ),
+              child: Column(
+                children: [
+                  _buildSeccionEdadSexo('Edad y sexo', edadSexo),
+                  _buildSeccion('Color de piel', coloresPiel),
+                  _buildSeccion('Escolaridad', escolaridades),
+                  _buildSeccion('Ocupación', ocupaciones),
+                  _buildSeccion('Grupo dispensarial', gruposDisp),
+                  _buildSeccion('Embarazadas', embarazadas, ocultarTotal: true),
+                  _buildSeccion('Factores de riesgo', factoresRiesgo,
+                      ocultarTotal: true),
+                  _buildSeccion(
+                      'Riesgo preconcepcional', riesgoPreconcepcionales,
+                      ocultarTotal: true),
+                  _buildSeccion('Control RPC', controlesRpc,
+                      ocultarTotal: true),
+                  _buildSeccion('Enfermedades', enfermedades,
+                      ocultarTotal: true),
+                  _buildSeccion('Discapacidades', discapacidades,
+                      ocultarTotal: true),
+                ],
+              ),
+            ),
     );
   }
 }

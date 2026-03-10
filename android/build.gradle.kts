@@ -1,5 +1,3 @@
-// build.gradle.kts en la carpeta android (raíz)
-
 allprojects {
     repositories {
         google()
@@ -24,6 +22,3 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
-
-// ❌ Aquí NO se debe declarar `android {}` en el raíz.
-// Esa configuración va dentro de app/build.gradle.kts.
