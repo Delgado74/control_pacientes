@@ -228,11 +228,11 @@ class _PacienteScreenState extends State<PacienteScreen> {
       paciente['enfermedades'] = enfermedades.entries
           .where((e) => e.value.text.isNotEmpty)
           .map((e) => "${e.key}: ${e.value.text.trim()}")
-          .join(', ');
+          .join(' | ');
       paciente['discapacidades'] = discapacidades.entries
           .where((e) => e.value.text.isNotEmpty)
           .map((e) => "${e.key}: ${e.value.text.trim()}")
-          .join(', ');
+          .join(' | ');
 
       await DatabaseHelper.instance.insertarPaciente(paciente);
 
@@ -450,6 +450,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                       // Carnet de identidad
                       TextFormField(
                         controller: _carnetIdentidadController,
+                        keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                             labelText: "Carnet de identidad",
                             border: OutlineInputBorder()),
@@ -460,9 +461,13 @@ class _PacienteScreenState extends State<PacienteScreen> {
                       TextButton(
                         onPressed: () async {
                           final now = DateTime.now();
-                          DateTime initialDate = DateTime.tryParse(
-                                  _fechaNacimientoController.text) ??
-                              now; // intenta usar la fecha actual del campo
+                          DateTime initialDate;
+                          try {
+                            initialDate = DateFormat('dd-MM-yyyy')
+                                .parseStrict(_fechaNacimientoController.text);
+                          } catch (_) {
+                            initialDate = now;
+                          }
                           final picked = await showDatePicker(
                             context: context,
                             initialDate: initialDate,
@@ -977,8 +982,8 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
 
   String _extractFieldValue(String combined, String key) {
     if (combined.isEmpty) return '';
-    final pattern =
-        RegExp(RegExp.escape(key) + r'\s*:\s*([^,]+)', caseSensitive: false);
+    final pattern = RegExp(RegExp.escape(key) + r'\s*:\s*(.+?)(?=\s*\||$)',
+        caseSensitive: false);
     final m = pattern.firstMatch(combined);
     if (m != null && m.groupCount >= 1) {
       return m.group(1)!.trim();
@@ -1035,7 +1040,7 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
     pacienteMap['enfermedades'] = enfermedadesLocal.entries
         .where((e) => e.value.text.trim().isNotEmpty)
         .map((e) => "${e.key}: ${e.value.text.trim()}")
-        .join(', ');
+        .join(' | ');
 
     for (var d in listaDiscapacidades) {
       pacienteMap[d.toLowerCase()] =
@@ -1044,7 +1049,7 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
     pacienteMap['discapacidades'] = discapacidadesLocal.entries
         .where((e) => e.value.text.trim().isNotEmpty)
         .map((e) => "${e.key}: ${e.value.text.trim()}")
-        .join(', ');
+        .join(' | ');
 
     pacienteMap['factor_riesgo'] = factoresLocal.entries
         .where((e) => e.value)
@@ -1089,6 +1094,7 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
               const SizedBox(height: 8),
               TextField(
                   controller: carnetIdentidadController,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                       labelText: "Carnet de identidad",
                       border: OutlineInputBorder())),
