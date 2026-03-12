@@ -5,7 +5,23 @@ import '../db/database_helper.dart';
 String _maskCarnetIdentidad(String? carnet) {
   if (carnet == null || carnet.isEmpty) return 'N/A';
   if (carnet.length <= 4) return carnet;
-  return '${'*' * (carnet.length - 4)}${carnet.substring(carnet.length - 4)}';
+  return '${carnet.substring(0, 4)}${'*' * (carnet.length - 4)}';
+}
+
+int _calcularEdad(String? fechaNac) {
+  if (fechaNac == null || fechaNac.isEmpty) return 0;
+  try {
+    DateTime fecha = DateFormat('dd-MM-yyyy').parse(fechaNac);
+    DateTime hoy = DateTime.now();
+    int edad = hoy.year - fecha.year;
+    if (hoy.month < fecha.month ||
+        (hoy.month == fecha.month && hoy.day < fecha.day)) {
+      edad--;
+    }
+    return edad;
+  } catch (_) {
+    return 0;
+  }
 }
 
 class PacienteScreen extends StatefulWidget {
@@ -124,7 +140,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
     "Psicologico",
     "Ambiental",
     "Social",
-    "Masculino"
+    "EQ"
   ];
   final List<String> controlesRpc = [
     "Ninguno",
@@ -673,34 +689,38 @@ class _PacienteScreenState extends State<PacienteScreen> {
                       const SizedBox(height: 12),
 
                       // Riesgo Preconcepcional
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                            labelText: "Riesgo Preconcepcional",
-                            border: OutlineInputBorder()),
-                        initialValue: _riesgoPreconcepcionalSeleccionado,
-                        items: riesgoPreconcepcionales
-                            .map((o) =>
-                                DropdownMenuItem(value: o, child: Text(o)))
-                            .toList(),
-                        onChanged: (val) => setState(
-                            () => _riesgoPreconcepcionalSeleccionado = val),
-                      ),
-                      const SizedBox(height: 12),
+                      if (_sexoSeleccionado == "Femenino")
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                              labelText: "Riesgo Preconcepcional",
+                              border: OutlineInputBorder()),
+                          initialValue: _riesgoPreconcepcionalSeleccionado,
+                          items: riesgoPreconcepcionales
+                              .map((o) =>
+                                  DropdownMenuItem(value: o, child: Text(o)))
+                              .toList(),
+                          onChanged: (val) => setState(
+                              () => _riesgoPreconcepcionalSeleccionado = val),
+                        ),
+                      if (_sexoSeleccionado == "Femenino")
+                        const SizedBox(height: 12),
 
                       // Control de RPC
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                            labelText: "Control RPC",
-                            border: OutlineInputBorder()),
-                        initialValue: _controlRpcSeleccionado,
-                        items: controlesRpc
-                            .map((o) =>
-                                DropdownMenuItem(value: o, child: Text(o)))
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _controlRpcSeleccionado = val),
-                      ),
-                      const SizedBox(height: 12),
+                      if (_sexoSeleccionado == "Femenino")
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                              labelText: "Control RPC",
+                              border: OutlineInputBorder()),
+                          initialValue: _controlRpcSeleccionado,
+                          items: controlesRpc
+                              .map((o) =>
+                                  DropdownMenuItem(value: o, child: Text(o)))
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => _controlRpcSeleccionado = val),
+                        ),
+                      if (_sexoSeleccionado == "Femenino")
+                        const SizedBox(height: 12),
 
                       // Enfermedades (alta)
                       const Align(
@@ -811,16 +831,15 @@ class _PacienteScreenState extends State<PacienteScreen> {
                           child: ListTile(
                             title: Text(
                                 "CDR ${paciente['cdr'] ?? ''} - Casa ${paciente['numeroCasa'] ?? ''}\n"
-                                "${paciente['nombre'] ?? ''} (${paciente['edad'] ?? ''} años)"),
+                                "${paciente['nombre'] ?? ''} (${_calcularEdad(paciente['fecha_nac']?.toString())} años)"),
                             subtitle: Text(
                               "Carnet de identidad: ${_maskCarnetIdentidad(paciente['carnet_identidad']?.toString())}\n"
                               "Sexo: ${paciente['sexo'] ?? 'N/A'} - Color piel: ${paciente['color_piel'] ?? 'N/A'}\n"
                               "Escolaridad: ${paciente['escolaridad'] ?? 'N/A'} - Ocupación: ${paciente['ocupacion'] ?? 'N/A'}\n"
-                              "Embarazada: ${paciente['embarazada'] ?? 'N/A'}\n"
+                              "${(paciente['embarazada'] == 'SI' ? 'Embarazada: SI\n' : '')}"
                               "Grupo Dispensarial: ${paciente['grupo_disp'] ?? 'N/A'}\n"
                               "Factores: ${paciente['factor_riesgo'] ?? ''}\n"
-                              "Riesgo Preconcepcional: ${paciente['riesgo_preconcepcional'] ?? ''}\n"
-                              "Control RPC: ${paciente['control_rpc'] ?? ''}\n"
+                              "${(paciente['sexo'] == 'Femenino' && paciente['riesgo_preconcepcional'] != null && paciente['riesgo_preconcepcional'] != 'Ninguno' && paciente['riesgo_preconcepcional'] != 'Masculino' ? 'Riesgo Preconcepcional: ${paciente['riesgo_preconcepcional']}\nControl RPC: ${paciente['control_rpc'] ?? ''}\n' : '')}"
                               "Enfermedades: ${paciente['enfermedades'] ?? ''}\n"
                               "Discapacidades: ${paciente['discapacidades'] ?? ''}\n"
                               "Próximo control: ${paciente['control'] ?? 'N/A'}",
@@ -1239,41 +1258,43 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
                         ))
                     .toList(),
               ),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: "Riesgo Preconcepcional",
-                    border: OutlineInputBorder()),
-                initialValue: riesgoPreconcepcional,
-                items: [
-                  'Ninguno',
-                  'Biologico',
-                  'Psicologico',
-                  'Ambiental',
-                  'Social',
-                  'Masculino'
-                ]
-                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-                    .toList(),
-                onChanged: (v) => setState(() => riesgoPreconcepcional = v),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: "Control de RPC", border: OutlineInputBorder()),
-                initialValue: controlRpc,
-                items: [
-                  'Ninguno',
-                  'Tabletas',
-                  'Inyecciones',
-                  'Implantes',
-                  'DIU',
-                  'Condon'
-                ]
-                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-                    .toList(),
-                onChanged: (v) => setState(() => controlRpc = v),
-              ),
-              const SizedBox(height: 8),
+              if (sexo == "Femenino")
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                      labelText: "Riesgo Preconcepcional",
+                      border: OutlineInputBorder()),
+                  initialValue: riesgoPreconcepcional,
+                  items: [
+                    'Ninguno',
+                    'Biologico',
+                    'Psicologico',
+                    'Ambiental',
+                    'Social',
+                    'EQ'
+                  ]
+                      .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                      .toList(),
+                  onChanged: (v) => setState(() => riesgoPreconcepcional = v),
+                ),
+              if (sexo == "Femenino")
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                      labelText: "Control de RPC",
+                      border: OutlineInputBorder()),
+                  initialValue: controlRpc,
+                  items: [
+                    'Ninguno',
+                    'Tabletas',
+                    'Inyecciones',
+                    'Implantes',
+                    'DIU',
+                    'Condon'
+                  ]
+                      .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                      .toList(),
+                  onChanged: (v) => setState(() => controlRpc = v),
+                ),
+              if (sexo == "Femenino") const SizedBox(height: 8),
               const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Enfermedades (indique clasificación si aplica)",
@@ -1450,24 +1471,16 @@ class _FiltroPacientesDialogState extends State<FiltroPacientesDialog> {
               onChanged: (val) => setState(() => sexo = val),
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: "Embarazada"),
-              initialValue: embarazada,
-              items: ["Sí", "No"]
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (val) => setState(() => embarazada = val),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: "Color de piel"),
-              initialValue: colorPiel,
-              items: widget.coloresPiel
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (val) => setState(() => colorPiel = val),
-            ),
-            const SizedBox(height: 8),
+            if (sexo == "Femenino")
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: "Embarazada"),
+                initialValue: embarazada,
+                items: ["Sí", "No"]
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
+                onChanged: (val) => setState(() => embarazada = val),
+              ),
+            if (sexo == "Femenino") const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(labelText: "Escolaridad"),
               initialValue: escolaridad,
