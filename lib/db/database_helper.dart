@@ -13,7 +13,7 @@ class DatabaseHelper {
 
   static Database? _database;
   static const _dbName = 'pacientes.db';
-  static const _dbVersion = 4;
+  static const _dbVersion = 5;
 
   static const List<String> gruposEdad = [
     '0-4',
@@ -190,6 +190,10 @@ class DatabaseHelper {
     if (oldVersion < 4) {
       await db
           .execute('ALTER TABLE pacientes ADD COLUMN carnet_identidad TEXT');
+    }
+    if (oldVersion < 5) {
+      await db.execute(
+          "UPDATE pacientes SET riesgo_preconcepcional = 'EQ' WHERE riesgo_preconcepcional = 'Masculino'");
     }
   }
 
