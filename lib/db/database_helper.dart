@@ -40,8 +40,14 @@ class DatabaseHelper {
     final cases = <String>[];
     for (var i = 0; i < gruposEdad.length - 1; i++) {
       final parts = gruposEdad[i].split('-');
+      final minEdad = parts[0];
+      final maxEdad = parts[1];
       cases.add(
-          "WHEN edad BETWEEN ${parts[0]} AND ${parts[1]} THEN '${gruposEdad[i]}'");
+          "WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(substr(fecha_nac, 7, 4) AS INTEGER) - "
+          "(CASE WHEN CAST(strftime('%m', 'now') AS INTEGER) < CAST(substr(fecha_nac, 4, 2) AS INTEGER) "
+          "OR (CAST(strftime('%m', 'now') AS INTEGER) = CAST(substr(fecha_nac, 4, 2) AS INTEGER) "
+          "AND CAST(strftime('%d', 'now') AS INTEGER) < CAST(substr(fecha_nac, 1, 2) AS INTEGER)) "
+          "THEN 1 ELSE 0 END) BETWEEN $minEdad AND $maxEdad THEN '${gruposEdad[i]}'");
     }
     cases.add("ELSE '${gruposEdad.last}'");
     return cases.join('\n');

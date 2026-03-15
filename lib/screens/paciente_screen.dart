@@ -215,11 +215,15 @@ class _PacienteScreenState extends State<PacienteScreen> {
         'color_piel': _colorPielSeleccionado,
         'escolaridad': _escolaridadSeleccionada,
         'ocupacion': _ocupacionSeleccionada,
-        'embarazada': _embarazadaSeleccionado,
+        'embarazada':
+            _sexoSeleccionado == 'Femenino' ? _embarazadaSeleccionado : null,
         'grupo_disp': _grupoDispensarialSeleccionado,
         'control': _controlSeleccionado,
-        'riesgo_preconcepcional': _riesgoPreconcepcionalSeleccionado,
-        'control_rpc': _controlRpcSeleccionado,
+        'riesgo_preconcepcional': _sexoSeleccionado == 'Femenino'
+            ? _riesgoPreconcepcionalSeleccionado
+            : null,
+        'control_rpc':
+            _sexoSeleccionado == 'Femenino' ? _controlRpcSeleccionado : null,
       };
 
       // flags binarios (factores)
@@ -330,10 +334,21 @@ class _PacienteScreenState extends State<PacienteScreen> {
       String where = "";
       List<dynamic> args = [];
 
-      // --- Filtro por rango de edad ---
+      // --- Filtro por rango de edad (calculado desde fecha_nac) ---
       if (resultado['edadMin'] != null && resultado['edadMax'] != null) {
-        where += "edad BETWEEN ? AND ?";
-        args.addAll([resultado['edadMin'], resultado['edadMax']]);
+        final hoy = DateTime.now();
+        final edadMin = (resultado['edadMin'] as num).toInt();
+        final edadMax = (resultado['edadMax'] as num).toInt();
+        final fechaMin =
+            DateTime(hoy.year - edadMax - 1, hoy.month, hoy.day + 1);
+        final fechaMax = DateTime(hoy.year - edadMin, hoy.month, hoy.day);
+
+        if (where.isNotEmpty) where += " AND ";
+        where += "fecha_nac BETWEEN ? AND ?";
+        args.addAll([
+          '${fechaMin.day.toString().padLeft(2, '0')}-${fechaMin.month.toString().padLeft(2, '0')}-${fechaMin.year}',
+          '${fechaMax.day.toString().padLeft(2, '0')}-${fechaMax.month.toString().padLeft(2, '0')}-${fechaMax.year}'
+        ]);
       }
 
       // --- Filtros básicos ---
@@ -544,8 +559,9 @@ class _PacienteScreenState extends State<PacienteScreen> {
                           setState(() {
                             _sexoSeleccionado = val;
                             if (_sexoSeleccionado != "Femenino") {
-                              _embarazadaSeleccionado =
-                                  null; // resetear si no es femenino
+                              _embarazadaSeleccionado = null;
+                              _riesgoPreconcepcionalSeleccionado = null;
+                              _controlRpcSeleccionado = null;
                             }
                           });
                         },
@@ -836,7 +852,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                               "Carnet de identidad: ${_maskCarnetIdentidad(paciente['carnet_identidad']?.toString())}\n"
                               "Sexo: ${paciente['sexo'] ?? 'N/A'} - Color piel: ${paciente['color_piel'] ?? 'N/A'}\n"
                               "Escolaridad: ${paciente['escolaridad'] ?? 'N/A'} - Ocupación: ${paciente['ocupacion'] ?? 'N/A'}\n"
-                              "${(paciente['embarazada'] == 'SI' ? 'Embarazada: SI\n' : '')}"
+                              "${(paciente['embarazada'] == 'Sí' ? 'Embarazada: Sí\n' : '')}"
                               "Grupo Dispensarial: ${paciente['grupo_disp'] ?? 'N/A'}\n"
                               "Factores: ${paciente['factor_riesgo'] ?? ''}\n"
                               "${(paciente['sexo'] == 'Femenino' && paciente['riesgo_preconcepcional'] != null && paciente['riesgo_preconcepcional'] != 'Ninguno' && paciente['riesgo_preconcepcional'] != 'Masculino' ? 'Riesgo Preconcepcional: ${paciente['riesgo_preconcepcional']}\nControl RPC: ${paciente['control_rpc'] ?? ''}\n' : '')}"
@@ -1041,11 +1057,12 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
       'color_piel': colorPiel,
       'escolaridad': escolaridad,
       'ocupacion': ocupacion,
-      'embarazada': embarazada,
+      'embarazada': sexo == 'Femenino' ? embarazada : null,
       'grupo_disp': grupoDisp,
       'control': control,
-      'riesgo_preconcepcional': riesgoPreconcepcional,
-      'control_rpc': controlRpc,
+      'riesgo_preconcepcional':
+          sexo == 'Femenino' ? riesgoPreconcepcional : null,
+      'control_rpc': sexo == 'Femenino' ? controlRpc : null,
     };
 
     for (var entry in factoresLocal.entries) {
@@ -1154,6 +1171,8 @@ class _EditarPacienteScreenState extends State<EditarPacienteScreen> {
                   sexo = v;
                   if (sexo != "Femenino") {
                     embarazada = null;
+                    riesgoPreconcepcional = null;
+                    controlRpc = null;
                   }
                 }),
                 validator: (val) => val == null ? "Seleccione un sexo" : null,
@@ -1468,7 +1487,14 @@ class _FiltroPacientesDialogState extends State<FiltroPacientesDialog> {
               items: widget.sexos
                   .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                   .toList(),
-              onChanged: (val) => setState(() => sexo = val),
+              onChanged: (val) => setState(() {
+                sexo = val;
+                if (sexo != "Femenino") {
+                  embarazada = null;
+                  riesgoPreconcepcional = null;
+                  controlRpc = null;
+                }
+              }),
             ),
             const SizedBox(height: 8),
             if (sexo == "Femenino")
@@ -1535,26 +1561,28 @@ class _FiltroPacientesDialogState extends State<FiltroPacientesDialog> {
             ),
             const SizedBox(height: 8),
 
-            DropdownButtonFormField<String>(
-              decoration:
-                  const InputDecoration(labelText: "Riesgo Preconcepcional"),
-              initialValue: riesgoPreconcepcional,
-              items: widget.riesgoPreconcepcionales
-                  .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-                  .toList(),
-              onChanged: (val) => setState(() => riesgoPreconcepcional = val),
-            ),
-            const SizedBox(height: 8),
+            if (sexo == "Femenino")
+              DropdownButtonFormField<String>(
+                decoration:
+                    const InputDecoration(labelText: "Riesgo Preconcepcional"),
+                initialValue: riesgoPreconcepcional,
+                items: widget.riesgoPreconcepcionales
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (val) => setState(() => riesgoPreconcepcional = val),
+              ),
+            if (sexo == "Femenino") const SizedBox(height: 8),
 
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: "Control RPC"),
-              initialValue: controlRpc,
-              items: widget.controlesRpc
-                  .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-                  .toList(),
-              onChanged: (val) => setState(() => controlRpc = val),
-            ),
-            const SizedBox(height: 8),
+            if (sexo == "Femenino")
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: "Control RPC"),
+                initialValue: controlRpc,
+                items: widget.controlesRpc
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                    .toList(),
+                onChanged: (val) => setState(() => controlRpc = val),
+              ),
+            if (sexo == "Femenino") const SizedBox(height: 8),
 
             const Align(
                 alignment: Alignment.centerLeft, child: Text("Enfermedades")),
